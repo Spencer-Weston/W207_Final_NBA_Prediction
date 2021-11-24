@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-games = pd.read_csv("./data/nba_games_data/games_test.csv")
+games = pd.read_csv("./data/nba_games_data/games.csv")
 game_details = pd.read_csv("./data/nba_games_data/games_details.csv")
 teams = pd.read_csv("./data/nba_games_data/teams.csv")
 start_dates = pd.read_csv("./data/season_start.csv")
