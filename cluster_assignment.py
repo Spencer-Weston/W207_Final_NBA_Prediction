@@ -52,12 +52,48 @@ km_mod = KMeans(n_clusters=12, init='random', max_iter=300, n_init=10, random_st
 km_mod.fit(X_train_scaled)
 predicted_clusters = km_mod.predict(X_assign_scaled)
 
+# Transform cluster assignment into indicator variable columns
 player_data['cluster'] = predicted_clusters
 cluster_titles = [f"cluster_{i}" for i in pd.unique(player_data.cluster)]
 for i, clust_num in enumerate(cluster_titles):
     player_data[cluster_titles[i]] = player_data.cluster.apply(lambda x: 1 if x == i else 0)
 
+# Reduce data to only games where a player played
+avail_player_data = player_data.loc[player_data.played == True, :]
+
+# Split Data into home and away teams
+home_player_data = avail_player_data.loc[avail_player_data.team_id == avail_player_data.home_team_id, :]
+away_player_data = avail_player_data.loc[avail_player_data.team_id == avail_player_data.visitor_team_id, :]
+
+# Group by game ID and team ID and apply a summation to get the count of players by cluster per team per game
 game_cols = ['game_id', 'team_id']
-game_data = player_data.loc[:, game_cols + cluster_titles]
-game_grouped_data = player_data.groupby(by=game_cols).sum()
+
+home_game_data = home_player_data.loc[:, game_cols + cluster_titles]
+home_cluster_data = home_game_data.groupby(by=game_cols).sum().reset_index()
+
+away_game_data = away_player_data.loc[:, game_cols + cluster_titles]
+away_cluster_data = away_game_data.groupby(by=game_cols).sum().reset_index()
+
+# Specify home and away columns
+new_home_cols =[]
+for col in list(home_cluster_data.columns):
+    if col.count('cluster') >= 1:
+        new_home_cols.append(col + 'h')
+    elif col == "team_id":
+        new_home_cols.append('team_id_h')
+    else:
+        new_home_cols.append(col)
+home_cluster_data.columns = new_home_cols
+
+new_away_cols =[]
+for col in list(away_cluster_data.columns):
+    if col.count('cluster') >= 1:
+        new_away_cols.append(col + 'a')
+    elif col == "team_id":
+        new_away_cols.append('team_id_a')
+    else:
+        new_away_cols.append(col)
+away_cluster_data.columns = new_away_cols
+
+test = pd.merge(home_cluster_data, away_cluster_data, on='game_id')
 t = 2
