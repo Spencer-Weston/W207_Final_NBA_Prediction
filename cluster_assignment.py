@@ -48,13 +48,14 @@ X_assign_scaled = scaler.transform(X_assign)
 # plt.xlabel('number of clusters', fontsize=14)
 # plt.ylabel('Distortion', fontsize=14)
 # plt.title('Elbow Plot', fontsize=14)
-km_mod = KMeans(n_clusters=12, init='random', max_iter=300, n_init=10, random_state=0)
+n_clusters = 12
+km_mod = KMeans(n_clusters=n_clusters, init='random', max_iter=300, n_init=10, random_state=0)
 km_mod.fit(X_train_scaled)
 predicted_clusters = km_mod.predict(X_assign_scaled)
 
 # Transform cluster assignment into indicator variable columns
 player_data['cluster'] = predicted_clusters
-cluster_titles = [f"cluster_{i}" for i in pd.unique(player_data.cluster)]
+cluster_titles = [f"cluster_{i}" for i in range(n_clusters)]
 for i, clust_num in enumerate(cluster_titles):
     player_data[cluster_titles[i]] = player_data.cluster.apply(lambda x: 1 if x == i else 0)
 
@@ -95,5 +96,5 @@ for col in list(away_cluster_data.columns):
         new_away_cols.append(col)
 away_cluster_data.columns = new_away_cols
 
-test = pd.merge(home_cluster_data, away_cluster_data, on='game_id')
-t = 2
+cluster_by_team = pd.merge(home_cluster_data, away_cluster_data, on='game_id')
+cluster_by_team.to_csv("./data/clusters_by_team.csv", index=False)
