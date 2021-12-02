@@ -36,18 +36,21 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_assign_scaled = scaler.transform(X_assign)
 
-# distortions = []
-# for i in range(1, 50):
-#     km_mod = KMeans(n_clusters=i, init='random', max_iter=300, n_init=10, random_state=0)
-#     km_mod.fit(X_train_scaled)
-# #   print(km_mod.inertia_)
-#     distortions.append(km_mod.inertia_)
-#
+distortions = []
+for i in range(1, 50):
+    km_mod = KMeans(n_clusters=i, init='random', max_iter=300, n_init=10, random_state=0)
+    km_mod.fit(X_train_scaled)
+    distortions.append(km_mod.inertia_)
+
+fig = plt.figure()
+ax = fig.add_subplot()
 # plt.figure(figsize=(8,6))
-# plt.plot(range(1, 50), distortions, 'bx-')
-# plt.xlabel('number of clusters', fontsize=14)
-# plt.ylabel('Distortion', fontsize=14)
-# plt.title('Elbow Plot', fontsize=14)
+ax.plot(range(1, 50), distortions, 'bx-')
+ax.set_xlabel('number of clusters', fontsize=14)
+ax.set_ylabel('Distortion', fontsize=14)
+ax.set_title('Elbow Plot', fontsize=14)
+fig.savefig("./graphs/k_means_distortion")
+
 n_clusters = 12
 km_mod = KMeans(n_clusters=n_clusters, init='random', max_iter=300, n_init=10, random_state=0)
 km_mod.fit(X_train_scaled)
@@ -62,6 +65,9 @@ for i, clust_num in enumerate(cluster_titles):
 # Reduce data to only games where a player played
 avail_player_data = player_data.loc[player_data.played == True, :]
 
+# Create and write out clusters by player
+cluster_by_player = avail_player_data.groupby(['player_id', 'player_name']).sum().reset_index()
+cluster_by_player.to_csv('./data/cluster_by_player.csv')
 # Split Data into home and away teams
 home_player_data = avail_player_data.loc[avail_player_data.team_id == avail_player_data.home_team_id, :]
 away_player_data = avail_player_data.loc[avail_player_data.team_id == avail_player_data.visitor_team_id, :]
