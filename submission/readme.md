@@ -26,5 +26,9 @@
      - Decision trees with DecisionTreeRegressor
      - Random Forest with RandomForestRegressor
      - XG Boosting with xgb
-3. **XX.ipynb**
-   - Neural Network
+3. **NN_model_selection.ipynb**
+   - Hyperparameter tuning and model selection for neural network model
+4. **NN_model_evaluation.ipynb**
+   - Evaluation of neural network model
+5. **player_cluster_evaluation.ipynb**
+   - Evaluation of player clusters 
